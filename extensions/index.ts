@@ -7,7 +7,11 @@
 //    没启动就完全静默（30 秒内不重复探），不会污染无关项目的会话
 import { Type } from "typebox";
 
-const BASE = process.env.NIFECODE_BRIDGE ?? "http://127.0.0.1:7317";
+// NIFECODE_BRIDGE=off（或 0 / none / disable）→ 整个扩展哑火：不注册工具也不注入，
+// 想在这个会话里彻底不用桥接又不想删包时用
+const RAW = (process.env.NIFECODE_BRIDGE ?? "").toLowerCase();
+const OFF = ["off", "0", "none", "disable"].includes(RAW);
+const BASE = OFF || !RAW ? "http://127.0.0.1:7317" : RAW;
 const PROBE_MS = 400;
 const RETRY_MS = 30_000;
 let downUntil = 0;
@@ -63,6 +67,7 @@ function stateBlock(state, cwd) {
 }
 
 export default function (pi) {
+  if (OFF) return;
   pi.registerTool({
     name: "nifecode",
     label: "NifeCode",

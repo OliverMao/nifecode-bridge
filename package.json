@@ -1,16 +1,29 @@
 {
   "name": "nifecode-bridge",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "让 Nife 知道本机的 NifeCode 编辑器正开着什么：注册 nifecode 工具，并在编辑器运行时把实时状态（root / 当前文件 / 脏文件 / 选中内容 / 光标）注入系统提示；编辑器没开就完全静默。",
   "license": "GPL-3.0-or-later",
   "author": "OliverMao",
-  "keywords": ["pi-package", "nifecode", "editor", "bridge", "tauri"],
+  "keywords": [
+    "pi-package",
+    "nifecode",
+    "editor",
+    "bridge",
+    "tauri"
+  ],
   "pi": {
-    "extensions": ["./extensions"]
+    "extensions": [
+      "./extensions"
+    ]
   },
   "peerDependencies": {
     "nife-coding-agent": "*",
     "typebox": "*"
   },
-  "files": ["extensions", "README.md", "LICENSE", "COPYRIGHT"]
+  "files": [
+    "extensions",
+    "README.md",
+    "LICENSE",
+    "COPYRIGHT"
+  ]
 }

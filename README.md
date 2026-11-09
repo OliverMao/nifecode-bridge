@@ -45,6 +45,17 @@ nife install git:github.com/OliverMao/nifecode-bridge
 规则：用户说「这里 / 这段」时以 selection 为准…
 ```
 
+## 怎么关掉
+
+| 场景 | 做法 |
+|---|---|
+| 只想这个会话不用 | `NIFECODE_BRIDGE=off nife`（工具不注册、状态不注入，整包哑火） |
+| 连别的扩展一起关 | `nife -ne`（`--no-extensions`） |
+| 只藏工具、保留注入 | `nife -xt nifecode`（`--exclude-tools`） |
+| NifeCode 没开 | 自动静默，什么都不用做 |
+| 彻底不用 | `nife remove git:github.com/OliverMao/nifecode-bridge` |
+| 只在某个项目里用 | 在那个项目跑 `nife install -l git:github.com/OliverMao/nifecode-bridge@v0.1.1`，写的是 `.nife/settings.json` |
+
 ## 端口不是 7317？
 
 设环境变量 `NIFECODE_BRIDGE=http://127.0.0.1:7318` 再启动 nife。
