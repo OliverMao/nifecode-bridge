@@ -69,9 +69,19 @@ NifeCode 的 PTY 会往每个终端里塞三个环境变量（ssh 终端没有�
 所以扩展的判断顺序是：`NIFECODE_BRIDGE=off` → 关；`NIFECODE_TERM=1` → 确定在编辑器终端里，
 提示词里会直说"你就跑在它的终端里"，不用再猜项目是不是同一个；都没有 → 探端口，通了才注入。
 
-## 端口不是 7317？
+## `NIFECODE_BRIDGE` 怎么写
 
-设环境变量 `NIFECODE_BRIDGE=http://127.0.0.1:7318` 再启动 nife。
+同一个变量既是地址又是开关，所以只认下面这几种写法（解析规则在 `extensions/config.ts`，
+自检：`node extensions/config.test.mjs`）：
+
+| 写法 | 含义 |
+|---|---|
+| 不设 / 空 | 默认 `http://127.0.0.1:7317` |
+| `off`（也能写 `0` `none` `false` `no` `disable`） | 关闭，不注册工具、不注入 |
+| `7318` | 纯端口号 → `http://127.0.0.1:7318` |
+| `localhost:7318` / `127.0.0.1:7318` | `http://localhost:7318` |
+| `http://host:7317` / `https://…` | 原样使用 |
+| 其它（比如 `localhost`、`http:/127.0.0.1`） | **当场报错**：`Failed to load extension … 不是能识别的地址`，不会悄悄改用 7317 |
 
 ## 兼容性
 

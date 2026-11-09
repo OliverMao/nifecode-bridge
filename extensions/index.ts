@@ -6,12 +6,14 @@
 // 2. 每轮开始前探一下端口，**编辑器真在跑**才把接口说明 + 实时状态追加进系统提示；
 //    没启动就完全静默（30 秒内不重复探），不会污染无关项目的会话
 import { Type } from "typebox";
+import { resolveBase } from "./config";
 
-// NIFECODE_BRIDGE=off（或 0 / none / disable）→ 整个扩展哑火：不注册工具也不注入，
-// 想在这个会话里彻底不用桥接又不想删包时用
-const RAW = (process.env.NIFECODE_BRIDGE ?? "").toLowerCase();
-const OFF = ["off", "0", "none", "disable"].includes(RAW);
-const BASE = OFF || !RAW.startsWith("http") ? "http://127.0.0.1:7317" : RAW;
+// NIFECODE_BRIDGE 的写法见 config.ts：off 关闭、纯端口号或 http://host:port 指定地址。
+// 写错就**当场抛错**（nife 会显示 "Failed to load extension: ..."），绝不悄悄回落到 7317
+const CFG = resolveBase(process.env.NIFECODE_BRIDGE);
+if (CFG.warning) throw new Error(CFG.warning);
+const OFF = !CFG.enabled;
+const BASE = CFG.base;
 // NifeCode 的 PTY 会给终端里的程序塞这几个变量（ssh 终端不会），
 // 有 NIFECODE_TERM 就说明"我是在编辑器自带的终端里跑的"，不用再靠探端口猜
 const IN_NIFECODE = process.env.NIFECODE_TERM === "1";
