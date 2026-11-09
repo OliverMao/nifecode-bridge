@@ -56,6 +56,19 @@ nife install git:github.com/OliverMao/nifecode-bridge
 | 彻底不用 | `nife remove git:github.com/OliverMao/nifecode-bridge` |
 | 只在某个项目里用 | 在那个项目跑 `nife install -l git:github.com/OliverMao/nifecode-bridge@v0.1.1`，写的是 `.nife/settings.json` |
 
+## 怎么知道自己"在 NifeCode 里"
+
+NifeCode 的 PTY 会往每个终端里塞三个环境变量（ssh 终端没有，因为不跨主机）：
+
+| 变量 | 值 |
+|---|---|
+| `NIFECODE_TERM` | `1` |
+| `NIFECODE_BRIDGE` | `http://127.0.0.1:7317` |
+| `NIFECODE_ROOT` | 该终端所属工作区的根目录 |
+
+所以扩展的判断顺序是：`NIFECODE_BRIDGE=off` → 关；`NIFECODE_TERM=1` → 确定在编辑器终端里，
+提示词里会直说"你就跑在它的终端里"，不用再猜项目是不是同一个；都没有 → 探端口，通了才注入。
+
 ## 端口不是 7317？
 
 设环境变量 `NIFECODE_BRIDGE=http://127.0.0.1:7318` 再启动 nife。

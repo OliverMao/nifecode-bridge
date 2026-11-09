@@ -11,7 +11,11 @@ import { Type } from "typebox";
 // 想在这个会话里彻底不用桥接又不想删包时用
 const RAW = (process.env.NIFECODE_BRIDGE ?? "").toLowerCase();
 const OFF = ["off", "0", "none", "disable"].includes(RAW);
-const BASE = OFF || !RAW ? "http://127.0.0.1:7317" : RAW;
+const BASE = OFF || !RAW.startsWith("http") ? "http://127.0.0.1:7317" : RAW;
+// NifeCode 的 PTY 会给终端里的程序塞这几个变量（ssh 终端不会），
+// 有 NIFECODE_TERM 就说明"我是在编辑器自带的终端里跑的"，不用再靠探端口猜
+const IN_NIFECODE = process.env.NIFECODE_TERM === "1";
+const ENV_ROOT = process.env.NIFECODE_ROOT;
 const PROBE_MS = 400;
 const RETRY_MS = 30_000;
 let downUntil = 0;
@@ -53,7 +57,7 @@ function stateBlock(state, cwd) {
   const dirty = (state.dirty ?? []).length;
   const sel = state.selection;
   return [
-    "## NifeCode 编辑器（本机正开着，下面这些是实时状态）",
+    `## NifeCode 编辑器（本机正开着${IN_NIFECODE ? "，你就跑在它的终端里" : ""}，下面这些是实时状态）`,
     `工具 \`nifecode\`：command = state | open | save | diff | workspace（接口 ${BASE}）。`,
     `当前：root=${state.root}，file=${state.file ?? "无"}，未保存=${dirty}，光标=${
       state.cursor ? `${state.cursor.file}:${state.cursor.line}` : "无"
@@ -62,7 +66,9 @@ function stateBlock(state, cwd) {
       ? `用户选中了 ${sel.file} 第 ${sel.startLine}-${sel.endLine} 行（原文在 nifecode state 的 selection.text，最长 4000 字）`
       : "用户当前没有选中内容",
     "规则：用户说「这里 / 这段 / 它」时以 selection 为准，别猜；改文件前若未保存数非空，先 `nifecode save`（否则你读到的是旧内容，还可能覆盖用户没保存的改动）；危险或跨文件的改动用 `nifecode diff`，人点「应用」才落盘；你直接改盘上的文件后，编辑器会自动重载。",
-    `注意：你的工作目录（${cwd ?? "?"}）和编辑器 root 不一致时，先确认是不是同一个项目。`,
+    IN_NIFECODE
+      ? `你运行在 NifeCode 自带终端里（NIFECODE_ROOT=${ENV_ROOT ?? state.root}），这个编辑器就是用户眼前的窗口。`
+      : `注意：你的工作目录（${cwd ?? "?"}）和编辑器 root 不一致时，先确认是不是同一个项目。`,
   ].join("\n");
 }
 
