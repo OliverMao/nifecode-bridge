@@ -1,7 +1,10 @@
 {
   "name": "nifecode-bridge",
-  "version": "0.1.3",
-  "description": "让 Nife 知道本机的 NifeCode 编辑器正开着什么：注册 nifecode 工具，并在编辑器运行时把实时状态（root / 当前文件 / 脏文件 / 选中内容 / 光标）注入系统提示；编辑器没开就完全静默。",
+  "version": "0.2.0",
+  "description": "让 Nife 知道本机的 NifeCode 编辑器正开着什么：注册 nifecode 工具，编辑器在跑时把实时状态注入上下文（走 context 事件，不动 system prompt）；写文件前自动保存用户未保存的改动，写完后自动滚到改动行。编辑器没开就完全静默。",
+  "scripts": {
+    "test": "node extensions/state.test.mjs && node extensions/config.test.mjs"
+  },
   "license": "GPL-3.0-or-later",
   "author": "OliverMao",
   "keywords": [
@@ -22,6 +25,7 @@
   },
   "files": [
     "extensions",
+    "!extensions/*.test.mjs",
     "README.md",
     "LICENSE",
     "COPYRIGHT"
