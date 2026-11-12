@@ -18,7 +18,9 @@ if (CFG.warning) throw new Error(CFG.warning);
 const OFF = !CFG.enabled;
 const BASE = CFG.base;
 // NifeCode 的 PTY 会给终端里的程序塞这几个变量（ssh 终端不会），
-// 有 NIFECODE_TERM 就说明"我是在编辑器自带的终端里跑的"，不用再靠探端口猜
+// 有 NIFECODE_TERM 才说明“我这个进程就是编辑器开出来的终端里的”，
+// 探端口只能证明“这台机器上有个编辑器开着”，跟当前会话一点关系都没有（可能在看别的项目、
+// 也可能是用户在普通 PowerShell 里跑 nife）。所以闸门只认环境变量，不认端口。
 const IN_NIFECODE = process.env.NIFECODE_TERM === "1";
 const PROBE_MS = 400;
 const RETRY_MS = 30_000;
@@ -95,7 +97,7 @@ function writeTarget(event) {
 }
 
 export default function (pi) {
-	if (OFF) return;
+	if (OFF || !IN_NIFECODE) return;
 
 	let warm = null;
 	const startWarm = () => {
@@ -208,7 +210,7 @@ export default function (pi) {
 				{
 					role: "custom",
 					customType: STATE_TYPE,
-					content: stateBlock(st, { base: BASE, inNifecode: IN_NIFECODE, cwd: ctx?.cwd }),
+					content: stateBlock(st, { base: BASE, cwd: ctx?.cwd }),
 					display: false,
 					timestamp: Date.now(),
 				},

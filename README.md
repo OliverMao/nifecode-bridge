@@ -6,15 +6,15 @@ NifeCode 在 `127.0.0.1:7317` 暴露一个本地 HTTP 接口（打开文件 / �
 这个扩展做三件事：
 
 1. **注册 `nifecode` 工具** —— agent 直接调用，不用拼 curl，也不依赖 NifeCode 仓库在哪
-2. **只在编辑器真的在跑时才把用法和实时状态注入上下文** —— 没启动就完全静默（30 秒退避），
-   不会像全局 `AGENTS.md` 那样污染所有无关项目的会话
+2. **只在从 NifeCode 终端启动时才把用法和实时状态注入上下文** —— 没启动或在别的终端里跑就完全静默，
+   不会像全局 `AGENTS.md` 那样污染无关项目的会话
 3. **替 agent 兜底**：写文件前自动保存用户的未保存改动（存不下来就拒绝写），写完后自动滚到改动行
 
 ## 安装
 
 ```bash
 # 固定版本（推荐）
-nife install git:github.com/OliverMao/nifecode-bridge@v0.2.0
+nife install git:github.com/OliverMao/nifecode-bridge@v0.2.1
 
 # 或者跟主线（不推荐，行为可能变）
 nife install git:github.com/OliverMao/nifecode-bridge
@@ -22,7 +22,7 @@ nife install git:github.com/OliverMao/nifecode-bridge
 
 装完开新会话即可，不需要重启 nife 之外的任何东西。卸载：`nife remove git:github.com/OliverMao/nifecode-bridge`。
 
-想先试不装：`nife -e git:github.com/OliverMao/nifecode-bridge@v0.2.0`。
+想先试不装：`nife -e git:github.com/OliverMao/nifecode-bridge@v0.2.1`。
 
 自检（不需要 nife，也不需要编辑器在跑）：
 
@@ -76,10 +76,11 @@ const a = 1;
 | 连别的扩展一起关 | `nife -ne`（`--no-extensions`） |
 | 只藏工具、保留注入 | `nife -xt nifecode`（`--exclude-tools`） |
 | NifeCode 没开 | 自动静默，什么都不用做 |
+| 没从编辑器的终端启动 | 自动静默（只看 `NIFECODE_TERM`，探到端口也不算） |
 | 彻底不用 | `nife remove git:github.com/OliverMao/nifecode-bridge` |
-| 只在某个项目里用 | 在那个项目跑 `nife install -l git:github.com/OliverMao/nifecode-bridge@v0.2.0`，写的是 `.nife/settings.json` |
+| 只在某个项目里用 | 在那个项目跑 `nife install -l git:github.com/OliverMao/nifecode-bridge@v0.2.1`，写的是 `.nife/settings.json` |
 
-## 怎么知道自己"在 NifeCode 里"
+## 什么时候才启用
 
 NifeCode 的 PTY 会往每个终端里塞三个环境变量（ssh 终端没有，因为不跨主机）：
 
@@ -89,8 +90,12 @@ NifeCode 的 PTY 会往每个终端里塞三个环境变量（ssh 终端没有�
 | `NIFECODE_BRIDGE` | `http://127.0.0.1:7317` |
 | `NIFECODE_ROOT` | 该终端所属工作区的根目录 |
 
-所以扩展的判断顺序是：`NIFECODE_BRIDGE=off` → 关；`NIFECODE_TERM=1` → 确定在编辑器终端里，
-提示词里会直说"你就跑在它的终端里"，不用再猜项目是不是同一个；都没有 → 探端口，通了才注入。
+判断只有一步：`NIFECODE_BRIDGE=off` → 关；否则**必须有 `NIFECODE_TERM=1`**（即这个 nife 进程
+是从 NifeCode 自带的终端里启起来的），否则整个扩展不注册工具、不注入状态、不发任何请求。
+
+端口探活不用来当依据：它只能证明“这台机器上有个 NifeCode 开着”，证明不了“当前这个会话和那个
+窗口有关系”。你在普通 PowerShell 里跑 nife、编辑器在另一个窗口开着别的项目时，探端口也会通，
+那种情况下注入状态和自动打开文件都是错的。
 
 ## `NIFECODE_BRIDGE` 怎么写
 

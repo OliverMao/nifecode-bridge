@@ -46,10 +46,10 @@ export function digestOf(state) {
  * 拼进上下文的实时状态块。故意短：每轮更新一次，长了就是纯烧钱。
  */
 export function stateBlock(state, opts = {}) {
-	const { base = "", inNifecode = false, cwd } = opts;
+	const { base = "", cwd } = opts;
 	const sel = state?.selection;
 	const lines = [
-		`## NifeCode 编辑器（本机正开着${inNifecode ? "，你就跑在它的终端里" : ""}；下面是每次请求前的实时状态）`,
+		"## NifeCode 编辑器（你就跑在它的终端里；下面是每次请求前的实时状态）",
 		`工具 \`nifecode\`：state | open | save | diff | workspace（接口 ${base}）。`,
 		`当前：root=${state?.root ?? "?"}，file=${state?.file ?? "无"}，未保存=${(state?.dirty ?? []).length}，光标=${
 			state?.cursor ? `${state.cursor.file}:${state.cursor.line}` : "无"

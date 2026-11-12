@@ -51,6 +51,7 @@ assert.match(long, /太长没带过来/, "长选中给个说明");
 
 // --- stateBlock：没选中 / 工作目录和编辑器 root 不一致时要说出来 ---
 assert.match(stateBlock(base(), { base: "http://x" }), /没有选中内容/, "没选中");
+assert.match(stateBlock(base(), { base: "http://x" }), /跑在它的终端里/, "只在编辑器终端里注入");
 assert.match(stateBlock(base(), { base: "http://x", cwd: "/home/u" }), /不是同一个目录/, "cwd 不一致要提");
 assert.doesNotMatch(stateBlock(base(), { base: "http://x", cwd: "D:\\p\\" }), /不是同一个目录/, "同一个目录不废话");
 
@@ -63,4 +64,4 @@ assert.equal(isDirtyFile(null, "/home/u/p/a.ts"), false, "脏文件为 null 不�
 // --- 常量：diff 阈值是个正数，别被写成 0 ---
 assert.ok(MAX_DIFF_CHARS > 1000, "diff 阈值合理");
 
-console.log("state 自检通过（21 项）");
+console.log("state 自检通过（22 项）");
